@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phish @ Sphere – Countdown</title>
+
+  <!-- MAXIMUM 90s JANK MODE ENABLED -->
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: #00ff00;
+      font-family: "Comic Sans MS", "Courier New", monospace;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    marquee {
+      font-size: 18px;
+      color: #ff00ff;
+    }
+
+    h1 {
+      font-size: 42px;
+      margin-top: 40px;
+      text-shadow: 2px 2px #ff00ff;
+    }
+
+    .blink { animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .countdown {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 30px;
+      font-size: 24px;
+    }
+
+    .box {
+      border: 3px dashed #00ffff;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.1);
+      min-width: 90px;
+    }
+
+    .label {
+      font-size: 12px;
+      margin-top: 6px;
+      color: #ffff00;
+    }
+
+    #status {
+      margin-top: 24px;
+      font-size: 20px;
+      color: #ff6600;
+    }
+
+    #logo {
+      position: absolute;
+      width: 160px;
+      pointer-events: none;
+    }
+
+    .counter {
+      margin-top: 18px;
+      font-size: 14px;
+      color: #ffffff;
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 6px;
+      width: 100%;
+      font-size: 12px;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <marquee behavior="alternate" scrollamount="8">WELCOME TO THE PHISH INTERNET • MIDI ENABLED • PLEASE WAIT WHILE THE PAGE LOADS</marquee>
+
+  <h1 class="blink">PHISH @ THE SPHERE</h1>
+  <div>Las Vegas • May 2, 2026 • 8:00 PM PST</div>
+
+  <div class="countdown">
+    <div class="box"><div id="days">0</div><div class="label">DAYS</div></div>
+    <div class="box"><div id="hours">0</div><div class="label">HOURS</div></div>
+    <div class="box"><div id="minutes">0</div><div class="label">MINUTES</div></div>
+    <div class="box"><div id="seconds">0</div><div class="label">SECONDS</div></div>
+  </div>
+
+  <div id="status"></div>
+  <div class="counter">Visitor Count: <span id="visits">000001</span></div>
+
+  <!-- Put the REAL Phish logo in this folder as logo.png -->
+  <img id="logo" src="logo.png" alt="Phish Logo" />
+
+  <!-- MIDI AUTOPLAYER (drop phish.mid in same folder) -->
+  <audio id="midi" src="phish.mid" autoplay loop></audio>
+
+  <div class="footer">Best viewed at 800x600 • MIDI ON • Netscape Navigator Approved • ⭕⭕⭕</div>
+
+  <script>
+    // EVENT TIME — May 2, 2026, 8:00 PM Pacific
+    const eventDate = new Date('2026-05-02T20:00:00-08:00').getTime();
+
+    const d = document.getElementById('days');
+    const h = document.getElementById('hours');
+    const m = document.getElementById('minutes');
+    const s = document.getElementById('seconds');
+    const status = document.getElementById('status');
+
+    function tick() {
+      const now = Date.now();
+      const diff = eventDate - now;
+
+      if (diff <= 0) {
+        d.textContent = h.textContent = m.textContent = s.textContent = 0;
+        status.textContent = 'THE SHOW IS HAPPENING 🌀';
+        return;
+      }
+
+      d.textContent = Math.floor(diff / (1000 * 60 * 60 * 24));
+      h.textContent = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      m.textContent = Math.floor((diff / (1000 * 60)) % 60);
+      s.textContent = Math.floor((diff / 1000) % 60);
+    }
+
+    setInterval(tick, 1000);
+    tick();
+
+    // RANDOM BACKGROUND COLOR (ON LOAD)
+    const colors = ['#000000', '#0b0033', '#330033', '#001f1f', '#1f0033'];
+    document.body.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+    // VISITOR COUNTER (localStorage — VERY 90s HONESTY)
+    let visits = localStorage.getItem('phishVisits') || 0;
+    visits++;
+    localStorage.setItem('phishVisits', visits);
+    document.getElementById('visits').textContent = String(visits).padStart(6, '0');
+
+    // BOUNCING LOGO — SPEED INCREASES AS SHOWTIME APPROACHES
+    const logo = document.getElementById('logo');
+    let x = 100, y = 100;
+    let baseSpeed = 1.5;
+    let vx = baseSpeed, vy = baseSpeed;
+
+    function bounce() {
+      const now = Date.now();
+      const timeFactor = Math.max(0, Math.min(1, 1 - (eventDate - now) / (1000 * 60 * 60 * 24 * 30)));
+      const speed = baseSpeed + timeFactor * 6; // ramps up in final ~30 days
+
+      vx = Math.sign(vx) * speed;
+      vy = Math.sign(vy) * speed;
+
+      x += vx;
+      y += vy;
+
+      if (x + logo.width > window.innerWidth || x < 0) vx *= -1;
+      if (y + logo.height > window.innerHeight || y < 0) vy *= -1;
+
+      logo.style.left = x + 'px';
+      logo.style.top = y + 'px';
+
+      requestAnimationFrame(bounce);
+    }
+
+    bounce();
+
+    // TRY TO FORCE MIDI PLAY (BROWSERS HATE FUN)
+    const midi = document.getElementById('midi');
+    document.body.addEventListener('click', () => midi.play(), { once: true });
+  </script>
+
+</body>
+</html>
